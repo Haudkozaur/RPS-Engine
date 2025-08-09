@@ -1,18 +1,12 @@
-# assets.py
 import pygame
 from typing import Dict, Tuple
 
 class AssetCache:
-    """
-    Caches pre-scaled surfaces for the current icon size.
-    Call build(img_map, size) whenever icon size changes (e.g., on respawn with new n).
-    """
     def __init__(self) -> None:
         self._surfs: Dict[Tuple[str, Tuple[int,int]], pygame.Surface] = {}
         self.size: Tuple[int,int] | None = None
 
     def build(self, img_map: Dict[str, str], size: Tuple[int,int]) -> None:
-        """(Re)build cache for given size."""
         self._surfs.clear()
         self.size = size
         for kind, path in img_map.items():

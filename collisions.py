@@ -1,45 +1,28 @@
-# collisions.py
 from __future__ import annotations
+from typing import TYPE_CHECKING, Optional, Dict
 import math
 import random
 import time
 from typing import Sequence, Dict, Tuple, List, Set, Optional
 from collections import defaultdict
 
-try:
-    # Optional fast path: pre-scaled surfaces provider
-    from assets import AssetCache  # type: ignore
-except Exception:
-    AssetCache = None  # fallback if you don't use AssetCache
+if TYPE_CHECKING:
+    from assets import AssetCache
 
 
 class CollisionManager:
-    """
-    Broad-phase via spatial hashing (uniform grid), narrow-phase circle–circle.
-    Resolves overlap (equal mass, elastic swap of normal components),
-    applies RPS morph rules, enforces a minimum speed, and (optionally) uses
-    pre-scaled assets to avoid I/O during morphing.
-    """
 
     def __init__(
         self,
         img_map: Dict[str, str],
-        asset_cache: Optional["AssetCache"] = None,
+        asset_cache: Optional[AssetCache] = None,
         cell_size: int = 128,
         restitution: float = 1.0,
         separation_bias: float = 1.01,
         min_speed: float = 60.0,
         morph_cooldown: float = 0.06,
     ) -> None:
-        """
-        img_map: {"scissors": "...png", "stone": "...png", "paper": "...png"}
-        asset_cache: optional AssetCache built for the current icon size
-        cell_size: spatial grid cell size (≈ icon size works well)
-        restitution: 1.0 = perfectly elastic
-        separation_bias: >1 pushes a bit extra apart to prevent re-sticking
-        min_speed: clamp speed after collisions so sprites never stall
-        morph_cooldown: minimal time (s) between morphs of the same sprite
-        """
+
         self.img_map = img_map
         self.assets = asset_cache
         self.cell_size = cell_size
@@ -48,23 +31,14 @@ class CollisionManager:
         self.min_speed = min_speed
         self.morph_cooldown = morph_cooldown
 
-        # per-sprite last-morph timestamp (by id(sprite))
         self._last_morph: Dict[int, float] = {}
 
     # ---------- public API ----------
 
     def resolve_all(self, sprites: Sequence) -> None:
-        """
-        Bucket sprites into grid cells by center, then resolve collisions only
-        within each cell and its 8 neighbors.
-        Expects sprites to expose:
-          - cx, cy (float center), radius (float), vx, vy
-          - set_center(x, y), kind
-          - morph_to(kind, img_path)  [fallback]
-          - OPTIONAL: morph_to_cached(kind, cached_surface)  [fast path]
-        """
+
         # 1) bucketize by cell
-        grid = defaultdict(list)  # (cx//cell_size, cy//cell_size) -> [index]
+        grid = defaultdict(list)
         cs = self.cell_size
         for i, s in enumerate(sprites):
             cell = (int(s.cx // cs), int(s.cy // cs))
@@ -96,7 +70,7 @@ class CollisionManager:
     # ---------- internals ----------
 
     def _resolve_list(self, idxs: List[int], sprites: Sequence, now: float) -> None:
-        """Resolve collisions among a small set of indices (same/neighboring cells)."""
+
         n = len(idxs)
         for a_i in range(n):
             A = sprites[idxs[a_i]]
@@ -104,7 +78,7 @@ class CollisionManager:
             for b_i in range(a_i + 1, n):
                 B = sprites[idxs[b_i]]
 
-                # Narrow-phase: circle–circle (squared test first)
+
                 dx = B.cx - ax
                 dy = B.cy - ay
                 r_sum = ar + B.radius
@@ -132,7 +106,7 @@ class CollisionManager:
                 A.set_center(ax, ay)
                 B.set_center(bx, by)
 
-                # --- Resolve velocities: swap normal components (equal mass) ---
+                # --- Resolve velocities: swap normal components ---
                 va_n = A.vx * nx + A.vy * ny
                 vb_n = B.vx * nx + B.vy * ny
 
@@ -148,17 +122,11 @@ class CollisionManager:
                 self._enforce_min_speed(A)
                 self._enforce_min_speed(B)
 
-                # --- Apply RPS morph rules (with cooldown & asset cache) ---
+                # --- Apply RPS morph rules ---
                 self._apply_rps_rules(A, B, now)
 
     def _apply_rps_rules(self, a, b, now: float) -> None:
-        """
-        RPS transmutation:
-          paper vs stone      -> stone -> paper
-          stone vs scissors   -> scissors -> stone
-          scissors vs paper   -> paper -> scissors
-        Cooldown prevents rapid flip-flopping of the same sprite.
-        """
+
         ka, kb = a.kind, b.kind
 
         # paper vs stone
@@ -183,7 +151,7 @@ class CollisionManager:
         sid = id(sprite)
         last = self._last_morph.get(sid, 0.0)
         if (now - last) < self.morph_cooldown:
-            return  # still on cooldown
+            return  
 
         # Skip if already that kind
         if getattr(sprite, "kind", None) == target_kind:

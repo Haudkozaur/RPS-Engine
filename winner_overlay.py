@@ -1,11 +1,9 @@
-# winner_overlay.py
 import pygame
 from typing import Dict, Tuple
 
 class WinnerOverlay:
     """
     Draws a stretched background image inside the arena when only one type remains.
-    Caches scaled surfaces per (kind, arena_size) to avoid repeated scaling.
     """
     def __init__(self, img_map: Dict[str, str]):
         # e.g. {"scissors": "scissors.png", "stone": "stone.png", "paper": "paper.png"}
@@ -24,7 +22,6 @@ class WinnerOverlay:
     def draw_if_winner(self, screen: pygame.Surface, arena_rect: pygame.Rect, counts: Dict[str, int]) -> bool:
         """
         If exactly one kind has count > 0, draw its image stretched to arena and return True.
-        Otherwise return False.
         """
         alive = [k for k, v in counts.items() if v > 0]
         if len(alive) != 1:

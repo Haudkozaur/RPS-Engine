@@ -1,4 +1,3 @@
-# hud.py
 import pygame
 from collections import Counter
 
@@ -20,13 +19,12 @@ class HUD:
     def draw(self, screen: pygame.Surface, arena_rect: pygame.Rect) -> None:
         label = f"Scissors: {self.counts['scissors']}   Stone: {self.counts['stone']}   Paper: {self.counts['paper']}"
         surf = self.font.render(label, True, self.text_color)
-        # place centered above arena; if no room, draw inside top edge
+        # place centered above arena
         y = arena_rect.top - surf.get_height() - 8
         if y < 4:
             y = arena_rect.top + 4
         x = arena_rect.centerx - surf.get_width() // 2
 
-        # background pill
         bg_rect = pygame.Rect(x - self.pad, y - self.pad, surf.get_width() + 2*self.pad, surf.get_height() + 2*self.pad)
         pygame.draw.rect(screen, self.bg_color, bg_rect, border_radius=8)
         screen.blit(surf, (x, y))

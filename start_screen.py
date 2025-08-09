@@ -3,7 +3,6 @@ import pygame
 class StartScreen:
     """
     Simple number input screen.
-    User types how many icons per type (R/P/S) and presses Enter to continue.
     """
     def __init__(self, screen: pygame.Surface,
                  font_large: pygame.font.Font | None = None,
@@ -56,7 +55,7 @@ class StartScreen:
         self.screen.fill((245, 245, 245))
         w, h = self.screen.get_size()
 
-        title = self.font_large.render("How many icons per type?", True, (20, 20, 20))
+        title = self.font_large.render("How many elements?", True, (20, 20, 20))
         self.screen.blit(title, title.get_rect(center=(w // 2, h // 2 - 90)))
 
         # Input box

@@ -1,9 +1,7 @@
-# arena.py
 import random
 import pygame
 
 class Arena:
-    """Square arena drawn inside the window. Sprites bounce off its borders."""
 
     def __init__(self, window_w: int, window_h: int, margin: int = 40, border: int = 4):
         # Make a centered square inside the window, inset by 'margin'
@@ -16,14 +14,11 @@ class Arena:
         self.border = border
 
     def draw(self, screen: pygame.Surface) -> None:
-        """Draw the arena border."""
         pygame.draw.rect(screen, self.border_color, self.rect, self.border)
 
     def random_point(self, padding: int = 0, *, float_coords: bool = True) -> tuple[float, float]:
         """
-        Return a random point strictly inside the arena.
-        padding: inner margin (e.g., ~half icon size + a small gap)
-        float_coords: when True, use uniform floats to avoid grid-like spawning.
+        Return a random point inside the arena.
         """
         max_pad = max(0, min(padding, min(self.rect.width, self.rect.height) // 2 - 1))
         left   = self.rect.left   + max_pad

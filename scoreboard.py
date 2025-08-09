@@ -1,4 +1,3 @@
-# scoreboard.py
 import pygame
 from typing import Dict
 

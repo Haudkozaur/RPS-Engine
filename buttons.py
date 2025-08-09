@@ -1,4 +1,3 @@
-# buttons.py
 import pygame
 
 class Button:
@@ -8,7 +7,7 @@ class Button:
         self.font = font
         self.color_bg = color_bg
         self.color_text = color_text
-        self.action = action  # callback function
+        self.action = action 
 
     def draw(self, screen):
         pygame.draw.rect(screen, self.color_bg, self.rect, border_radius=6)
