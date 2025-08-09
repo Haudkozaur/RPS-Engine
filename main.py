@@ -31,11 +31,11 @@ def icon_size_for(n: int) -> tuple[int, int]:
     if n <= 2:
         s = 100
     elif n <= 5:
-        s = 64
+        s = 72
     elif n <= 10:
-        s = 48
+        s = 56
     elif n <= 20:
-        s = 40
+        s = 48
     elif n <= 40:
         s = 32
     else:
