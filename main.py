@@ -107,18 +107,17 @@ def main() -> None:
     assets = AssetCache()  # pre-scaled surfaces for current icon size
 
     # Initial round
-    assets.build(IMG_MAP, icon_size_for(n))   # build cache once for current size
+    assets.build(IMG_MAP, icon_size_for(n)) 
     sprites = spawn_sprites(n, arena)
     collisions = make_collision_manager_for(sprites, assets)
 
-    # Round state: to award winner exactly once per round
+    # Round state
     round_active = True
     running = True
 
-    # --- actions (wired to buttons / keys) ---
+    # --- actions ---
 
     def restart_simulation():
-        """Like Enter: re-spawn with current 'n', keep scoreboard."""
         nonlocal sprites, collisions, round_active
         assets.build(IMG_MAP, icon_size_for(n))   # rebuild cache if size changes with n
         sprites = spawn_sprites(n, arena)
@@ -126,7 +125,6 @@ def main() -> None:
         round_active = True
 
     def restart_to_start(scr, w, h):
-        """Return to start: ask for new 'n' and reset scoreboard."""
         nonlocal sprites, collisions, n, round_active
         n = StartScreen(scr).run()
         scoreboard.reset()
