@@ -17,7 +17,7 @@ Thanks to its clear visualization and live scoreboard, decision-making becomes f
 Requires Python 3.10+ and `pygame`.
 
 ```bash
-git clone https://github.com/<your-repo>/RPS-Engine.git
+git clone https://github.com/Haudkozaur/RPS-Engine
 cd RPS-Engine
 pip install -r requirements.txt
 ```
