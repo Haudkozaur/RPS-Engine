@@ -12,9 +12,9 @@ from assets import AssetCache  # pre-scaled surfaces for fast morphing
 
 
 IMG_MAP = {
-    "scissors": "img//scissors.png",
-    "stone":    "img//stone.png",
-    "paper":    "img//paper.png",
+    "scissors": "img/scissors.png",
+    "stone":    "img/stone.png",
+    "paper":    "img/paper.png",
 }
 
 PANEL_WIDTH = 220  # room for buttons + scoreboard on the right
