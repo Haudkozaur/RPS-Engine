@@ -28,8 +28,3 @@ pip install -r requirements.txt
 python main.py
 ```
 
-## Controls
-
-* **Enter** – Restart round with the same number of objects.
-* **Buttons** – New game, restart, or exit.
-* **ESC / Window close** – Quit application.
