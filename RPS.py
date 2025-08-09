@@ -119,6 +119,16 @@ class RPS:
         self.radius = 0.45 * max(self.rect.width, self.rect.height)
 
 
+        def morph_to_cached(self, kind: str, cached_surface: pygame.Surface) -> None:
+            """
+            Fast morph: swap to pre-scaled Surface without touching rect/radius.
+            Assumes cached_surface has the same size as current self.image.
+            """
+            self.kind = kind
+            self.image = cached_surface
+            # rect center/size and radius remain the same → zero kosztu
+
+
 # Thin subclasses that only tag the kind
 class Scissors(RPS):
     def __init__(self, *args, **kwargs) -> None:

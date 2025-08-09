@@ -8,6 +8,7 @@ from hud import HUD
 from winner_overlay import WinnerOverlay
 from buttons import ButtonPanel
 from scoreboard import Scoreboard
+from assets import AssetCache  # pre-scaled surfaces for fast morphing
 
 
 IMG_MAP = {
@@ -42,11 +43,11 @@ def icon_size_for(n: int) -> tuple[int, int]:
     return (s, s)
 
 
-
-def make_collision_manager_for(sprites) -> CollisionManager:
+def make_collision_manager_for(sprites, assets: AssetCache) -> CollisionManager:
     """
     Configure the CollisionManager with a cell size adapted to current icon size.
     Roughly ~1.2x icon width (works well as a broad-phase grid).
+    Pass the asset cache so morphs don't load/scale every time.
     """
     if sprites:
         icon_w = sprites[0].rect.width
@@ -55,6 +56,7 @@ def make_collision_manager_for(sprites) -> CollisionManager:
     cell_size = max(32, int(icon_w * 1.2))
     return CollisionManager(
         img_map=IMG_MAP,
+        asset_cache=assets,
         cell_size=cell_size,
         restitution=1.0,
         separation_bias=1.02,
@@ -65,8 +67,9 @@ def make_collision_manager_for(sprites) -> CollisionManager:
 # ---------- spawning ----------
 
 def spawn_sprites(n: int, arena: Arena) -> list:
+    """Spawn n of each icon at random positions inside the arena, with adaptive size."""
     size = icon_size_for(n)
-    pad = (max(size) // 2) + 6  # trzyma z dala od ścian
+    pad = (max(size) // 2) + 6  # keep sprites away from arena walls
     sprites = []
     for _ in range(n):
         sprites.append(Scissors(IMG_MAP["scissors"], arena.rect, size=size,
@@ -82,7 +85,7 @@ def spawn_sprites(n: int, arena: Arena) -> list:
 
 def main() -> None:
     pygame.init()
-    WIDTH, HEIGHT = 1000, 700  # a bit wider for the right-side panel
+    WIDTH, HEIGHT = 1000, 700  # wide enough for the right-side panel
     # vsync for smoother presentation (requires pygame 2.x + supported driver)
     screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.SCALED, vsync=1)
     pygame.display.set_caption("RPS-Engine")
@@ -101,10 +104,12 @@ def main() -> None:
     overlay = WinnerOverlay(IMG_MAP)
     scoreboard = Scoreboard()
     panel = ButtonPanel(screen.get_rect())
+    assets = AssetCache()  # pre-scaled surfaces for current icon size
 
     # Initial round
+    assets.build(IMG_MAP, icon_size_for(n))   # build cache once for current size
     sprites = spawn_sprites(n, arena)
-    collisions = make_collision_manager_for(sprites)
+    collisions = make_collision_manager_for(sprites, assets)
 
     # Round state: to award winner exactly once per round
     round_active = True
@@ -115,8 +120,9 @@ def main() -> None:
     def restart_simulation():
         """Like Enter: re-spawn with current 'n', keep scoreboard."""
         nonlocal sprites, collisions, round_active
+        assets.build(IMG_MAP, icon_size_for(n))   # rebuild cache if size changes with n
         sprites = spawn_sprites(n, arena)
-        collisions = make_collision_manager_for(sprites)
+        collisions = make_collision_manager_for(sprites, assets)
         round_active = True
 
     def restart_to_start(scr, w, h):
@@ -124,8 +130,9 @@ def main() -> None:
         nonlocal sprites, collisions, n, round_active
         n = StartScreen(scr).run()
         scoreboard.reset()
+        assets.build(IMG_MAP, icon_size_for(n))   # rebuild for the new size
         sprites = spawn_sprites(n, arena)
-        collisions = make_collision_manager_for(sprites)
+        collisions = make_collision_manager_for(sprites, assets)
         round_active = True
 
     def exit_game():
